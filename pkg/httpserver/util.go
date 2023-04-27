@@ -2,7 +2,9 @@ package httpserver
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"path/filepath"
 
 	"github.com/cafi-dev/iac-gen/pkg/logging"
 	"go.uber.org/zap"
@@ -23,6 +25,13 @@ func sendJSONResponse(w http.ResponseWriter, statusCode int, body interface{}) {
 		return
 	}
 	sendResponse(w, statusCode, resp)
+}
+
+func sendFileResponse(w http.ResponseWriter, r *http.Request, filePath string) {
+	filename := filepath.Base(filePath)
+	w.Header().Set("Content-Type", "application/zip")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
+	http.ServeFile(w, r, filePath)
 }
 
 type errResp struct {

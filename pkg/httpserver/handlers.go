@@ -5,17 +5,24 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"path/filepath"
 
+	"github.com/cafi-dev/iac-gen/pkg/archiver"
 	"github.com/cafi-dev/iac-gen/pkg/logging"
 	"github.com/cafi-dev/iac-gen/pkg/model"
 	"github.com/cafi-dev/iac-gen/pkg/tf/tfaws"
 	"go.uber.org/zap"
 )
 
-type APIHandler struct{}
+type APIHandler struct {
+	tgz archiver.Archiver
+}
 
 func NewAPIHandler() *APIHandler {
-	return &APIHandler{}
+	return &APIHandler{
+		tgz: archiver.NewTGZ(),
+	}
 }
 
 func (h *APIHandler) Health(w http.ResponseWriter, r *http.Request) {
@@ -45,6 +52,7 @@ func (h *APIHandler) GenerateIac(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// defer os.RemoveAll(basedir)
+	logger.Info("writing terraform", zap.String("output", basedir))
 
 	// initiate k8s discovery
 	aws := tfaws.NewTfAws()
@@ -55,6 +63,16 @@ func (h *APIHandler) GenerateIac(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logger.Info("successfully generate terraform", zap.String("output", basedir))
-	sendJSONResponse(w, http.StatusOK, nil)
+	// creat tgz file
+	filePath := filepath.Join(os.TempDir(), "terraform.zip")
+	if err := h.tgz.Compress(filePath, basedir); err != nil {
+		errMsg := "failed to create tgz file"
+		logger.Error(errMsg, zap.Error(err))
+		sendErrResponse(w, http.StatusInternalServerError, fmt.Errorf("%s: %w", errMsg, err))
+		return
+	}
+	defer os.RemoveAll(filePath)
+
+	logger.Info("successfully generate terraform", zap.String("output", filePath))
+	sendFileResponse(w, r, filePath)
 }
