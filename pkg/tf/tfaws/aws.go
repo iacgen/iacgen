@@ -31,8 +31,12 @@ func (t *TfAws) GenerateIac(basedir string, projectDetails model.ProjectDetails)
 		}
 
 		// create ecs resources
-		var apps TfAwsECSTemplates
-		for _, app := range apps {
+		for _, svc := range project.Services {
+			app := TfAwsECSTemplate{
+				AppName:       svc.Name,
+				Image:         svc.Image,
+				ContainerPort: svc.Ports[0].Listen,
+			}
 			if err := app.RenderTemplate(outputDir); err != nil {
 				return fmt.Errorf("failed to render ecs template: %w", err)
 			}
