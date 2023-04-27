@@ -19,7 +19,7 @@ clean:
 # build binary
 build: clean
 	@mkdir -p ${BUILD_DIR} > /dev/null
-	CGO_ENABLED=1 go build ${BUILD_FLAGS} -o ${BINARY_PATH} ./cmd/iac-gen/main.go
+	CGO_ENABLED=0 go build ${BUILD_FLAGS} -o ${BINARY_PATH} ./cmd/iac-gen/main.go
 	@echo "binary created at ${BINARY_PATH}"
 
 # update go mod dependencies
