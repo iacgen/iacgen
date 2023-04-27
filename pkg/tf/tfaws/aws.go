@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/cafi-dev/iac-gen/pkg/model"
+	cp "github.com/otiai10/copy"
 )
 
 type ITfAws interface {
@@ -14,6 +17,27 @@ type TfAws struct{}
 
 func NewTfAws() *TfAws {
 	return &TfAws{}
+}
+
+func (t *TfAws) CreateProject(basedir string, projectDetails model.ProjectDetails) error {
+	// copy terraform templates
+	templateDir := filepath.Join(os.Getenv("PWD"), "terraform")
+
+	for _, project := range projectDetails.Projects {
+		outputDir := filepath.Join(basedir, project.Metadata.Name)
+		if err := cp.Copy(templateDir, outputDir); err != nil {
+			return fmt.Errorf("failed to copy template directory: %w", err)
+		}
+
+		// create ecs resources
+		var apps TfAwsECSTemplates
+		for _, app := range apps {
+			if err := app.RenderTemplate(outputDir); err != nil {
+				return fmt.Errorf("failed to render ecs template: %w", err)
+			}
+		}
+	}
+	return nil
 }
 
 func (*TfAws) CreateRemoteBackendConfig(basedir string) error {
