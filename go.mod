@@ -3,16 +3,20 @@ module github.com/cafi-dev/iac-gen
 go 1.19
 
 require (
+	github.com/gorilla/handlers v1.5.1
+	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/hcl/v2 v2.16.2
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.6.1
 	github.com/otiai10/copy v1.9.0
 	github.com/zclconf/go-cty v1.12.1
 	go.uber.org/zap v1.24.0
+	golang.org/x/sync v0.1.0
 )
 
 require (
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
+	github.com/felixge/httpsnoop v1.0.1 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
