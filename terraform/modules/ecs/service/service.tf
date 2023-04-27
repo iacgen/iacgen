@@ -27,7 +27,7 @@ resource "aws_ecs_service" "service" {
       discovery_name = var.container_name
       port_name = "local"
       client_alias {
-        dns_name = var.container_name
+        dns_name = var.dns_name
         port = var.container_port
       }
     }

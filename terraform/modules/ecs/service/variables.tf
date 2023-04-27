@@ -42,6 +42,6 @@ variable "namespace" {
   
 }
 
-variable "discovery_name" {
+variable "dns_name" {
   
 }

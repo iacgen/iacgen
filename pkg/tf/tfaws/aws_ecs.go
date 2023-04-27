@@ -7,7 +7,26 @@ import (
 	"text/template"
 )
 
-const ecsTemplate = `module "{{.AppName}}_task_definition" {
+const ecsTemplate = `resource "aws_security_group" "{{.AppName}}_sg" {
+	name        = "{{.AppName}}-${var.project}-${var.env}-${var.launch_type}-ecs-sg"
+	vpc_id      = module.vpc.id
+  
+	ingress {
+	  protocol        = "tcp"
+	  from_port       = {{.ContainerPort}}
+	  to_port         = {{.ContainerPort}}
+	  security_groups = [module.lb_sg.id]
+	}
+  
+	egress {
+	  protocol    = "-1"
+	  from_port   = 0
+	  to_port     = 0
+	  cidr_blocks = ["0.0.0.0/0"]
+	}
+  }
+
+module "{{.AppName}}_task_definition" {
 	source         = "./modules/ecs/task_definition"
 	name           = "{{.AppName}}-${var.project}-${var.env}-ecs-task-def"
 	launch_type    = [var.launch_type]
@@ -33,8 +52,16 @@ const ecsTemplate = `module "{{.AppName}}_task_definition" {
 	lb_target_group = module.{{.AppName}}_target_group.arn
 	container_name  = "{{.AppName}}-${var.project}-${var.env}-${var.launch_type}"
 	container_port  = {{.ContainerPort}}
-	network_config  = local.fargate_network_config
+	network_config  = [
+		{
+		  subnets         = module.vpc.private_subnet_ids
+		  public_ip       = "false"
+		  security_groups = [aws_security_group.{{.AppName}}_sg.id]
+		}
+	  ]
 	http_listener   = module.{{.AppName}}_http_listener.arn
+	namespace 		= var.project
+	dns_name 		= "{{.AppName}}"
   }
   
   module "{{.AppName}}_target_group" {

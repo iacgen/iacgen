@@ -96,35 +96,6 @@ module "load_balancer" {
 }
 
 ####################### ECS #################
-# create security group for ecs
-module "ecs_sg" {
-  source = "./modules/network/sg"
-  name   = "${var.project}-${var.env}-ecs-sg"
-  vpc_id = module.vpc.id
-}
-
-# create ingress rule
-module "ecs_ingress_http_rule" {
-  source         = "./modules/network/sg_rule_cidr"
-  type           = var.sg_type_ingress
-  from_port      = 80
-  to_port        = 80
-  cidr_block     = [var.all_cidr_block]
-  protocol       = var.tcp_protocol
-  security_group = module.ecs_sg.id
-}
-
-# create egress rule
-module "ecs_egress_sg_rule" {
-  source         = "./modules/network/sg_rule_cidr"
-  type           = var.sg_type_egress
-  from_port      = 0
-  to_port        = 0
-  cidr_block     = [var.all_cidr_block]
-  protocol       = var.tcp_protocol
-  security_group = module.ecs_sg.id
-}
-
 # create ecs task execution role
 module "task_execution_role" {
   source  = "./modules/ecs/iam"
