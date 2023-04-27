@@ -10,7 +10,7 @@ import (
 
 func GetExistingHCLFile(filePath string) (*hclwrite.File, *os.File, error) {
 	// open file
-	file, err := os.Open(filePath)
+	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to open file %q: %w", filePath, err)
 	}
