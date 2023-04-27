@@ -21,7 +21,7 @@ type APIHandler struct {
 
 func NewAPIHandler() *APIHandler {
 	return &APIHandler{
-		tgz: archiver.NewTGZ(),
+		tgz: archiver.NewZIP(),
 	}
 }
 
@@ -51,8 +51,7 @@ func (h *APIHandler) GenerateIac(w http.ResponseWriter, r *http.Request) {
 		sendErrResponse(w, http.StatusInternalServerError, fmt.Errorf("%s: %w", errMsg, err))
 		return
 	}
-	// defer os.RemoveAll(basedir)
-	logger.Info("writing terraform", zap.String("output", basedir))
+	defer os.RemoveAll(basedir)
 
 	// initiate k8s discovery
 	aws := tfaws.NewTfAws()
@@ -64,7 +63,7 @@ func (h *APIHandler) GenerateIac(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// creat tgz file
-	filePath := filepath.Join(os.TempDir(), "terraform.zip")
+	filePath := filepath.Join(os.TempDir(), fmt.Sprintf("%s.zip", filepath.Base(basedir)))
 	if err := h.tgz.Compress(filePath, basedir); err != nil {
 		errMsg := "failed to create tgz file"
 		logger.Error(errMsg, zap.Error(err))
