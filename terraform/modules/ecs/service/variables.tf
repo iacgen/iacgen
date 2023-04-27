@@ -37,3 +37,11 @@ variable "network_config" {
 variable "http_listener" {
   
 }
+
+variable "namespace" {
+  
+}
+
+variable "discovery_name" {
+  
+}
