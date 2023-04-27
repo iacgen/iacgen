@@ -9,6 +9,8 @@ import (
 	cp "github.com/otiai10/copy"
 )
 
+const workDir = "/app/cafi-dev/iac-gen"
+
 type ITfAws interface {
 	CreateRemoteBackendConfig(basedir string) error
 	GenerateIac(basedir string, projectDetails model.ProjectDetails) error
@@ -22,12 +24,12 @@ func NewTfAws() *TfAws {
 
 func (t *TfAws) GenerateIac(basedir string, projectDetails model.ProjectDetails) error {
 	// copy terraform templates
-	templateDir := filepath.Join(os.Getenv("PWD"), "terraform")
+	templateDir := filepath.Join(workDir, "terraform")
 
 	for _, project := range projectDetails.Projects {
 		outputDir := filepath.Join(basedir, project.Metadata.Name)
 		if err := cp.Copy(templateDir, outputDir); err != nil {
-			return fmt.Errorf("failed to copy template directory: %w", err)
+			return fmt.Errorf("failed to copy template directory %q: %w", templateDir, err)
 		}
 
 		// create ecs resources
