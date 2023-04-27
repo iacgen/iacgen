@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/hashicorp/hcl/v2 v2.16.2
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.6.1
+	github.com/otiai10/copy v1.9.0
 	github.com/zclconf/go-cty v1.12.1
 	go.uber.org/zap v1.24.0
 )
