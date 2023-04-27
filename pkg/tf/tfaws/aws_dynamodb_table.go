@@ -11,13 +11,9 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
-const tfAwsDynamodb TFAWSResType = "dynamodb"
-
-func init() {
-	addResourceType(tfAwsDynamodb, NewTfAwsDynamodb())
+type TfAwsDynamodb struct {
+	Prefix string `json:"prefix"`
 }
-
-type TfAwsDynamodb struct{}
 
 func NewTfAwsDynamodb() *TfAwsDynamodb {
 	return &TfAwsDynamodb{}
@@ -42,10 +38,16 @@ func (g *TfAwsDynamodb) createDynamodb(body *hclwrite.Body, basedir, tablename s
 	attributeBlock.Body().SetAttributeValue("name", cty.StringVal("LockID"))
 	attributeBlock.Body().SetAttributeValue("type", cty.StringVal("S"))
 
-	return tfutils.AddVariable(basedir, "table_name", "Dynamodb table name")
+	return tfutils.AddVariable(basedir, "table_name", "string", "Dynamodb table name")
 }
 
-func (g *TfAwsDynamodb) Generate(basedir, name string) error {
+func (g *TfAwsDynamodb) GetName() string {
+	return fmt.Sprintf("%s-dynamodb-table", g.Prefix)
+}
+
+func (g *TfAwsDynamodb) Generate(basedir string) error {
+	name := g.GetName()
+
 	// create new empty hcl file object
 	hclFile, file, err := tfutils.GetHCLFile(filepath.Join(basedir, constant.MainTf))
 	if err != nil {

@@ -11,13 +11,13 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
-const tfAwsS3 TFAWSResType = "s3"
-
-func init() {
-	addResourceType(tfAwsS3, NewTfAwsS3())
+type TfAwsS3 struct {
+	Prefix               string `json:"prefix"`
+	Description          string `json:"description"`
+	EnableVersioning     bool   `json:"enable_versioning"`
+	EnableEncryption     bool   `json:"enable_encryption"`
+	RestrictPublicAccess bool   `json:"restrict_public_access"`
 }
-
-type TfAwsS3 struct{}
 
 func NewTfAwsS3() *TfAwsS3 {
 	return &TfAwsS3{}
@@ -76,10 +76,16 @@ func (g *TfAwsS3) createAwsS3(body *hclwrite.Body, basedir, name string) error {
 			Name: "bucket_name",
 		},
 	})
-	return tfutils.AddVariable(basedir, "bucket_name", "AWS S3 bucket to store terraform state files")
+	return tfutils.AddVariable(basedir, "bucket_name", "string", "AWS S3 bucket name")
 }
 
-func (g *TfAwsS3) Generate(basedir, bucketname string) error {
+func (g *TfAwsS3) GetName() string {
+	return fmt.Sprintf("%s-s3", g.Prefix)
+}
+
+func (g *TfAwsS3) Generate(basedir string) error {
+	bucketname := g.GetName()
+
 	// get main.tf hcl file
 	hclFile, file, err := tfutils.GetHCLFile(filepath.Join(basedir, constant.MainTf))
 	if err != nil {
@@ -94,15 +100,21 @@ func (g *TfAwsS3) Generate(basedir, bucketname string) error {
 	}
 
 	// enable versioning
-	g.enableVersioning(body, bucketname)
+	if g.EnableVersioning {
+		g.enableVersioning(body, bucketname)
+	}
 
 	// enable server side encryption
-	g.enableEncryption(body, bucketname)
+	if g.EnableEncryption {
+		g.enableEncryption(body, bucketname)
+	}
 
 	// block public access
-	g.restrictPublicAccess(body, bucketname)
+	if g.RestrictPublicAccess {
+		g.restrictPublicAccess(body, bucketname)
+	}
 
-	if err := tfutils.AddOutput(basedir, "aws_s3_bucket_arn", "ARN of the S3 bucket which store terraform state", []string{"aws_s3_bucket", bucketname, "arn"}); err != nil {
+	if err := tfutils.AddOutput(basedir, "aws_s3_bucket_arn", "ARN of the S3 bucket created", []string{"aws_s3_bucket", bucketname, "arn"}); err != nil {
 		return fmt.Errorf("failed to add output variables for aws s3 bucket ARN: %w", err)
 	}
 

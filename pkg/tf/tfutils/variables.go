@@ -10,7 +10,7 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
-func AddVariable(basedir, varname, description string) error {
+func AddVariable(basedir, varname, vartype, description string) error {
 	// add input variable into variables.tf file
 	hclFile, file, err := GetHCLFile(filepath.Join(basedir, constant.VariablesTf))
 	if err != nil {
@@ -23,7 +23,7 @@ func AddVariable(basedir, varname, description string) error {
 	block := body.AppendNewBlock("variable", []string{varname})
 	block.Body().SetAttributeValue("description", cty.StringVal(description))
 	block.Body().SetAttributeTraversal("type", hcl.Traversal{
-		hcl.TraverseRoot{Name: "string"},
+		hcl.TraverseRoot{Name: vartype},
 	})
 
 	if _, err := file.Write(hclwrite.Format(hclFile.Bytes())); err != nil {

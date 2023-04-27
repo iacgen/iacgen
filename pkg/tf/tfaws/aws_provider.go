@@ -11,19 +11,16 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
-const tfAwsProvider TFAWSResType = "provider"
-
-func init() {
-	addResourceType(tfAwsProvider, NewTfAwsProvider())
+type TfAwsProvider struct {
+	AddProviderBlock bool
+	AddVersionBlock  bool
 }
-
-type TfAwsProvider struct{}
 
 func NewTfAwsProvider() *TfAwsProvider {
 	return &TfAwsProvider{}
 }
 
-func (*TfAwsProvider) addVersionsBlock(body *hclwrite.Body) {
+func (*TfAwsProvider) addVersionBlock(body *hclwrite.Body) {
 	body.AppendNewline()
 	// add terraform block for required versions
 	terraformBlock := body.AppendNewBlock("terraform", nil)
@@ -50,10 +47,10 @@ func (*TfAwsProvider) addProviderBlock(basedir string, body *hclwrite.Body) erro
 			Name: "aws_region",
 		},
 	})
-	return tfutils.AddVariable(basedir, "aws_region", "AWS region")
+	return tfutils.AddVariable(basedir, "aws_region", "string", "AWS region")
 }
 
-func (g *TfAwsProvider) Generate(basedir, name string) error {
+func (g *TfAwsProvider) Generate(basedir string) error {
 	// create new empty hcl file object
 	hclFile, file, err := tfutils.GetHCLFile(filepath.Join(basedir, constant.ProviderTf))
 	if err != nil {
@@ -63,11 +60,15 @@ func (g *TfAwsProvider) Generate(basedir, name string) error {
 	body := hclFile.Body()
 
 	// add versions block
-	g.addVersionsBlock(body)
+	if g.AddVersionBlock {
+		g.addVersionBlock(body)
+	}
 
 	// add provider block
-	if err := g.addProviderBlock(basedir, body); err != nil {
-		return fmt.Errorf("failed to add provider block: %w", err)
+	if g.AddProviderBlock {
+		if err := g.addProviderBlock(basedir, body); err != nil {
+			return fmt.Errorf("failed to add provider block: %w", err)
+		}
 	}
 
 	// write contents to file
