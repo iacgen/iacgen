@@ -177,7 +177,7 @@ func (t *TfAws) CreateNetworkModule(basedir, prefix string) error {
 	publicRouteTableAssoc := TfAwsRouteTableAssociation{
 		Prefix:       fmt.Sprintf("%s-public-subnet", prefix),
 		SubnetId:     pubSubnet.GetId(),
-		RouteTableId: igw.GetId(),
+		RouteTableId: publicRouteTable.GetId(),
 	}
 	if err := publicRouteTableAssoc.Generate(modulesDir); err != nil {
 		return fmt.Errorf("failed to create aws_route_table_association for public subnet: %w", err)
@@ -186,7 +186,7 @@ func (t *TfAws) CreateNetworkModule(basedir, prefix string) error {
 	privRouteTableAssoc := TfAwsRouteTableAssociation{
 		Prefix:       fmt.Sprintf("%s-priv-subnet", prefix),
 		SubnetId:     privSubnet.GetId(),
-		RouteTableId: natgw.GetId(),
+		RouteTableId: privateRouteTable.GetId(),
 	}
 	if err := privRouteTableAssoc.Generate(modulesDir); err != nil {
 		return fmt.Errorf("failed to create aws_route_table_association for private subnet: %w", err)
