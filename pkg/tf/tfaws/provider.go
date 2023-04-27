@@ -23,6 +23,7 @@ func NewTfAwsProvider() *TfAwsProvider {
 }
 
 func (*TfAwsProvider) addVersionsBlock(body *hclwrite.Body) {
+	body.AppendNewline()
 	// add terraform block for required versions
 	terraformBlock := body.AppendNewBlock("terraform", nil)
 	terraformBlock.Body().SetAttributeValue("required_versions", cty.StringVal(">= 1.0.0, < 2.0.0"))
@@ -52,7 +53,7 @@ func (*TfAwsProvider) addProviderBlock(body *hclwrite.Body) {
 
 func (g *TfAwsProvider) Generate(basedir, name string) error {
 	// create new empty hcl file object
-	hclFile, file, err := tfutils.CreateEmptyHCLFile(filepath.Join(basedir, "provider.tf"))
+	hclFile, file, err := tfutils.GetHCLFile(filepath.Join(basedir, "provider.tf"))
 	if err != nil {
 		return fmt.Errorf("failed to create terraform file for aws provider: %w", err)
 	}
