@@ -11,6 +11,7 @@ import (
 
 type ITfAws interface {
 	CreateRemoteBackendConfig(basedir string) error
+	GenerateIac(basedir string, projectDetails model.ProjectDetails) error
 }
 
 type TfAws struct{}
@@ -19,7 +20,7 @@ func NewTfAws() *TfAws {
 	return &TfAws{}
 }
 
-func (t *TfAws) CreateProject(basedir string, projectDetails model.ProjectDetails) error {
+func (t *TfAws) GenerateIac(basedir string, projectDetails model.ProjectDetails) error {
 	// copy terraform templates
 	templateDir := filepath.Join(os.Getenv("PWD"), "terraform")
 
