@@ -32,7 +32,7 @@ func (s *HTTPServer) addRoutes(r *mux.Router) {
 
 	apiSubRouter := r.PathPrefix("/v1/api").Subrouter()
 	apiSubRouter.Use(handlers.RecoveryHandler())
-	apiSubRouter.Methods(http.MethodPost).Path("/iac/generate").HandlerFunc(h.ExecuteK8sDiscovery)
+	apiSubRouter.Methods(http.MethodPost).Path("/iac/generate").HandlerFunc(h.GenerateIac)
 }
 
 func (s *HTTPServer) Start() error {
