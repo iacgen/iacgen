@@ -44,7 +44,7 @@ func (h *APIHandler) GenerateIac(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create temp dir
-	basedir, err := ioutil.TempDir("", "remove-me-*")
+	basedir, err := ioutil.TempDir("", "terraform-*")
 	if err != nil {
 		errMsg := "failed to create temp directory"
 		logger.Error(errMsg, zap.Error(err))
