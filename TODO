@@ -1,0 +1,5 @@
+[ ] Figure out the listner routing for various Services
+[ ] Inter service communication
+[ ] database (postgres, mysql)
+[ ] aws account (creds shared by James)
+[ ] push docker images - cafi images (aws ecr)
