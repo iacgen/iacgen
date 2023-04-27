@@ -3,6 +3,11 @@ iacgen generates Iac (Infrastructure as Code) for the given input configuration
 
 ## Run locally
 ```sh
+$ make build
+$ ./bin/iac-gen
+```
+## Run docker locally
+```sh
 $ docker build -t iacgen -f Dockerfile .
 $ docker run -p 8000:8000 --rm --name iac-gen iacgen:latest
 ```
